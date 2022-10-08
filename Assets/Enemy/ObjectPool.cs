@@ -7,7 +7,7 @@ public class ObjectPool : MonoBehaviour
 {
     [SerializeField] int numberOfEnemiesInWave = 5;
     [SerializeField] GameObject enemy;
-    [SerializeField] float spawnTimer = 1f;
+    [SerializeField][Range(0.1f, 30f)] float spawnTimer = 1f;
 
     GameObject[] pool;
 
