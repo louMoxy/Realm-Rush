@@ -8,18 +8,20 @@ using System;
 public class CoordinateLabeler : MonoBehaviour
 {
     [SerializeField] Color defaultColor = Color.white;
-    [SerializeField] Color blockedColor = Color.red;
+    [SerializeField] Color blockedColor = Color.gray;
+    [SerializeField] Color exploredColor = Color.yellow;
+    [SerializeField] Color pathColor = new Color(1f, 0.5f, 0f);
 
     TextMeshPro label;
     Vector2Int gridPosition = new Vector2Int();
-    Waypoint waypoint;
+    GridManager gridManager;
 
     private void Awake()
     {
         label = GetComponent<TextMeshPro>();
-        label.enabled = false;
-        waypoint = GetComponentInParent<Waypoint>();
+        label.enabled = true;
         DisplayCoordinates();
+        gridManager = FindObjectOfType<GridManager>();
     }
 
     // Update is called once per frame
@@ -44,13 +46,34 @@ public class CoordinateLabeler : MonoBehaviour
 
     private void ColorCoordinates()
     {
-        label.color = waypoint.IsPlaceable ? defaultColor : blockedColor;
+        if (gridManager)
+        {
+            Node node = gridManager.GetNode(gridPosition);
+            if (node == null) { return; }
+            if (node.isWalkable)
+            {
+                label.color = defaultColor;
+            }
+            if (node.isExplored)
+            {
+                label.color = exploredColor;
+            }
+            if (node.isPath)
+            {
+                label.color = pathColor;
+            }
+            else
+            {
+                label.color = blockedColor;
+            }
+        }
     }
 
     private void DisplayCoordinates()
     {
-        gridPosition.x = Mathf.RoundToInt(transform.parent.position.x / UnityEditor.EditorSnapSettings.move.x);
-        gridPosition.y = Mathf.RoundToInt(transform.parent.position.z / UnityEditor.EditorSnapSettings.move.z);
+        if(gridManager == null) { return; }
+        gridPosition.x = Mathf.RoundToInt(transform.parent.position.x / gridManager.UnityGridSize);
+        gridPosition.y = Mathf.RoundToInt(transform.parent.position.z / gridManager.UnityGridSize);
 
         label.text = $"{gridPosition.x},{gridPosition.y}";
     }
